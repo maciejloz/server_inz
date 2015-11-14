@@ -1,0 +1,53 @@
+﻿<Window x:Class="Server_Knowledge_checking.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Serwer" Height="350" Width="525">
+    <Window.Resources>
+        <DataTemplate x:Key="listBoxItem">
+            <Border BorderBrush="Red" BorderThickness="1" CornerRadius="3">
+                <StackPanel Name="ItemPanel" Orientation="Vertical" Margin="5">
+                    <TextBlock Text="{Binding Path=numberToBind}" Foreground="Red" />
+                    <TextBlock Text="{Binding Path=nameToBind}" Foreground="Red" />
+                    <TextBlock Text="{Binding Path=ipToBind}" Foreground="Red" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Name="labelOfClients" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Top" Content="Lista klientów:" />
+        <ListBox Name="ListBoxCollection" Grid.Column="0" Width="150" Height="250" ItemsSource="{Binding clientsList}"
+                 ItemTemplate="{StaticResource ResourceKey=listBoxItem}" >
+        </ListBox>
+
+        <Label Name="labelOfCourse" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,10,10,10" Content="Podaj Przedmiot" />
+        <Label Name="labelOfCourseWhenRun" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,10,10,10" Visibility="Hidden" Content="" />
+        <TextBox Name="courseName" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,35,10,10" Height="20" Width="80" />
+
+        <Label Name="labelOfGroupName" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,50,0,0" Content="Podaj nazwę grupy" />
+        <Label Name="labelOfGroupNameWhenRun" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,50,0,0" Visibility="Hidden" Content="" />
+        <TextBox Name="groupName" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,75,10,10" Height="20" Width="80" />
+
+        <Button Name="sendTestButton" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30,75,29,0" Height="25" Width="150" Visibility="Hidden" Content="Wyślij Test" Click="sendTestButton_Click" />
+        <Button Name="getTestButton" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30,107,29,0" Height="25" Width="150" Content="Wgraj Test" Click="getTestButton_Click" />
+        <Button Name="cancelTestButton" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30,107,29,0" Height="25" Width="150" Visibility="Hidden" Content="Anuluj Test" Click="cancelTestButton_Click" />
+        
+
+        <Label Name="labelOfPortNumber" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10,10,10" Content="Podaj Port" />
+        <Label Name="labelOfPortNumberWhenConnected" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10,10,10" Visibility="Hidden" Content="" />
+        <TextBox Name="portNumber" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,50,10,10" Height="20" Width="80" />
+
+        <Label Name="labelOfIpAddress" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,80,0,0" Content="Podaj Ip" />
+        <Label Name="labelOfIpAddressWhenConnected" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,80,0,0" Visibility="Hidden" Content="" />
+        <TextBox Name="ipAddress" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,130,10,10" Height="20" Width="80" />
+
+        <Button Name="connectWithClientsButton" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="30,0,29,55" Height="25" Width="150" Content="Połącz z klientami" Click="connectWithClientsButton_Click" />
+        <Button Name="disconnectWithClientsButton" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="30,0,29,55" Height="25" Width="150" Visibility="Hidden" Content="Rozłącz serwer" Click="disconnectWithClientsButton_Click" />
+    </Grid>
+</Window>
