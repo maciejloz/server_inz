@@ -24,14 +24,16 @@ namespace Connection
         public int numberOfClient;
         public string nameOfClient = "";
         public static Dictionary<string, string> TypeOfServerMessage;
+        public bool isReportReceive;
+        public NetworkStream networkStream;
 
         private IPEndPoint _ipAddressOfClient;
-        private NetworkStream _networkStream;
-
+        
         public ClientHandler(TcpClient tcpcl, int numbofclient, IPEndPoint ipendpoint)
         {
             tcpClient = tcpcl;
             numberOfClient = numbofclient;
+            isReportReceive = false;
             _ipAddressOfClient = ipendpoint;
 
             ipToBind = _ipAddressOfClient.ToString();
@@ -40,8 +42,8 @@ namespace Connection
 
         ~ClientHandler()
         {
-            if (_networkStream != null)
-                _networkStream.Dispose();
+            if (networkStream != null)
+                networkStream.Dispose();
             if (tcpClient != null && tcpClient.Connected)
             {
                 tcpClient.Close();
@@ -89,15 +91,15 @@ namespace Connection
 
             try
             {
-                _networkStream = tcpClient.GetStream();
+                networkStream = tcpClient.GetStream();
 
-                if (_networkStream.CanRead)
+                if (networkStream.CanRead)
                 {
                     do
                     {
-                        numberOfBytesRead = _networkStream.Read(myReadBuffer, 0, myReadBuffer.Length );// myReadBuffer.Length);
+                        numberOfBytesRead = networkStream.Read(myReadBuffer, 0, myReadBuffer.Length );// myReadBuffer.Length);
                         myCompleteMessage.AppendFormat("{0}", Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead));
-                    } while (_networkStream.DataAvailable);
+                    } while (networkStream.DataAvailable);
 
                     nameOfClient = myCompleteMessage.ToString();
                     nameToBind = nameOfClient;
@@ -134,8 +136,8 @@ namespace Connection
                 {
                     Byte[] sendBytes = null;
                     sendBytes = Encoding.ASCII.GetBytes(messageToClient);
-                    _networkStream.Write(sendBytes, 0, sendBytes.Length);
-                    _networkStream.Flush();
+                    networkStream.Write(sendBytes, 0, sendBytes.Length);
+                    networkStream.Flush();
                 }
                 catch (ArgumentNullException ex)
                 {
@@ -167,15 +169,15 @@ namespace Connection
                     // Send Length (Int64)
                     try
                     {
-                        _networkStream.Write(BitConverter.GetBytes(fileIO.Length), 0, 8);
+                        networkStream.Write(BitConverter.GetBytes(fileIO.Length), 0, 8);
                         //_networkStream.Write(sendBytes, 0, sendBytes.Length);
                         var buffer = new byte[1024 * 8];
                         int count;
 
                         while ((count = fileIO.Read(buffer, 0, buffer.Length)) > 0)
-                            _networkStream.Write(buffer, 0, count);
+                            networkStream.Write(buffer, 0, count);
 
-                        _networkStream.Flush();
+                        networkStream.Flush();
                     }
                     catch (ArgumentNullException ex)
                     {
@@ -196,6 +198,47 @@ namespace Connection
                 }
             });
             return task;
+        }
+
+        internal bool GetReport()
+        {
+            Int64 catchedBytes = 0;
+            int countOfBytes;
+            var buffer = new byte[1024 * 8];
+            string filePath = Server_Knowledge_checking.Utilities.UsableMethods.directoryPath + "\\" + nameOfClient + ".html";
+            try
+            {
+                networkStream.Read(buffer, 0, 8);
+                Int64 numberOfBytes = BitConverter.ToInt64(buffer, 0);
+
+                using (var fileWithTest = File.Create(filePath))
+                {
+                    while (catchedBytes < numberOfBytes && (countOfBytes = networkStream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        fileWithTest.Write(buffer, 0, countOfBytes);
+                        catchedBytes += countOfBytes;
+                    }
+                }
+                SendResponseToClient("Report is Ok");
+
+            }
+            catch (ArgumentNullException ex)
+            {
+                MessageBox.Show("Bufor wysłany przez serwer jest pusty");
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                MessageBox.Show("Serwer wysłał za duży bufor danych");
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show("Wybrane gniazdo zostało wcześniej zakmnięte lub wystąpił problem podczas zapisywania pliku z testem na dysku twardym");
+            }
+            catch (ObjectDisposedException ex)
+            {
+                MessageBox.Show("Problem z odczytem danych z sieci");
+            }
+            return true;
         }
 
     }

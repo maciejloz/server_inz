@@ -108,6 +108,17 @@ namespace Server_Knowledge_checking
         private void sendTestButton_Click(object sender, RoutedEventArgs e)
         {
             server.SendTestToAllClients();
+            server.EndTestSendEvent += Server_EndTestSendEvent;
+        }
+
+        private async void waitForReportsHandler()
+        {
+            await server.WaitForReport();
+        }
+
+        private void Server_EndTestSendEvent()
+        {
+            waitForReportsHandler();
         }
     }
 }

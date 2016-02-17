@@ -69,9 +69,7 @@ namespace Server_Knowledge_checking.Utilities
             mainWindow.ipAddress.Visibility = System.Windows.Visibility.Visible;
             mainWindow.ipAddress.Text = "";
             mainWindow.labelOfIpAddressWhenConnected.Visibility = System.Windows.Visibility.Hidden;
-
             mainWindow.labelOfPortNumberWhenConnected.Visibility = System.Windows.Visibility.Hidden;
-
             mainWindow.connectWithClientsButton.Visibility = System.Windows.Visibility.Visible;
             mainWindow.disconnectWithClientsButton.Visibility = System.Windows.Visibility.Hidden;
         }

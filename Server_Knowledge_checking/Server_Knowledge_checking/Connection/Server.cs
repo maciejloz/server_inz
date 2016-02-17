@@ -12,7 +12,6 @@ using System.Windows.Threading;
 
 namespace Connection
 {
-    delegate void del();
 
     class Server
     {
@@ -21,6 +20,8 @@ namespace Connection
         public static int portNumber;
         public TcpListener tcpListener;
         public TcpClient tcpClient;
+        public delegate void DelegateInvoker();
+        public event DelegateInvoker EndTestSendEvent;
         //private ObservableCollection<Client> clientsList = new ObservableCollection<Client>();
         private Task _listenTask;
         private bool _isConnectionCanceled;
@@ -183,6 +184,7 @@ namespace Connection
             {
                 await client.SendTestToClient();
             }
+            EndTestSendEvent();
         }
 
         public void CloseConnection()
@@ -219,6 +221,25 @@ namespace Connection
             //clientsList.Clear();
             if (client.tcpClient != null && client.tcpClient.Connected)
                 client.tcpClient.Close();
+        }
+
+        public Task WaitForReport()
+        {
+            int receivedReports = 0;
+
+            Task task = Task.Run(() =>
+            {
+                do
+                {
+                    foreach (var client in clientsList)
+                    {
+                        if (client.networkStream.DataAvailable == true)
+                            if (client.GetReport())
+                                receivedReports += 1;
+                    }
+                }while(receivedReports != clientsList.Count);
+            });
+            return task;
         }
         //private void ClientObject_ClientCloseCommunicationEvent(Connection.Client client)
         //{

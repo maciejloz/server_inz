@@ -15,9 +15,9 @@ namespace Server_Knowledge_checking.Utilities
     {
         public static string zipPath;
         public static bool IS_OK = false;
+        public static string directoryPath;
         private static string _courseName;
         private static string _groupName;
-        private static string _directoryPath;
 
         public static void OpenTest(string courseName_copy, string groupName_copy)
         {
@@ -40,8 +40,8 @@ namespace Server_Knowledge_checking.Utilities
         {
             _courseName = "";
             _groupName = "";
-            Directory.Delete(_directoryPath, true);
-            _directoryPath = "";
+            Directory.Delete(directoryPath, true);
+            directoryPath = "";
             zipPath = "";
         }
 
@@ -66,9 +66,9 @@ namespace Server_Knowledge_checking.Utilities
         private static void ZipDirectory(string folderPath, string fileName)
         {
             zipPath = "C:\\Testy_Zipped\\" + _courseName + "\\" + _groupName + "\\" + fileName + ".zip";
-            _directoryPath = "C:\\Testy_Zipped\\" + _courseName + "\\" + _groupName ;
+            directoryPath = "C:\\Testy_Zipped\\" + _courseName + "\\" + _groupName ;
             //if (Directory.Exists(directoryPath) == false)
-                Directory.CreateDirectory(_directoryPath);
+                Directory.CreateDirectory(directoryPath);
            // else
             //    MessageBox.Show("Ścieżka skompresowanego folderu istnieje", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
 
