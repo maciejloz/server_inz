@@ -98,7 +98,7 @@ namespace Connection
                     do
                     {
                         numberOfBytesRead = networkStream.Read(myReadBuffer, 0, myReadBuffer.Length );// myReadBuffer.Length);
-                        myCompleteMessage.AppendFormat("{0}", Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead));
+                        myCompleteMessage.AppendFormat("{0}", Encoding.UTF8.GetString(myReadBuffer, 0, numberOfBytesRead));// (Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead));
                     } while (networkStream.DataAvailable);
 
                     nameOfClient = myCompleteMessage.ToString();

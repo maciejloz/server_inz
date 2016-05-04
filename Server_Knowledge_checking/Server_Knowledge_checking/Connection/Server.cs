@@ -189,7 +189,7 @@ namespace Connection
 
         public void CloseConnection()
         {
-            //ustawiamy flage dla metody obslugujacec TcpListenera na true(oznacza zakonczenie watku nasluchujacego)
+            //ustawiamy flage dla metody obslugujacej TcpListenera na true(oznacza zakonczenie watku nasluchujacego)
             this._isConnectionCanceled = true;
 
             //dla kazdego obiektu klienta 
@@ -229,15 +229,22 @@ namespace Connection
 
             Task task = Task.Run(() =>
             {
-                do
+                try
                 {
-                    foreach (var client in clientsList)
+                    do
                     {
-                        if (client.networkStream.DataAvailable == true)
-                            if (client.GetReport())
-                                receivedReports += 1;
-                    }
-                }while(receivedReports != clientsList.Count);
+                        foreach (var client in clientsList)
+                        {
+                            if (client.networkStream.DataAvailable == true)
+                                if (client.GetReport())
+                                    receivedReports += 1;
+                        }
+                    } while (receivedReports != clientsList.Count);
+                }
+                catch (System.ObjectDisposedException)
+                {
+                    MessageBox.Show("Klient przerwał połączenie, podczas gdy Serwer oczekiwał na transmisję danych");
+                }
             });
             return task;
         }

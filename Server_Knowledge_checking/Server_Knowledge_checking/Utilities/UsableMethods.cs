@@ -14,11 +14,12 @@ namespace Server_Knowledge_checking.Utilities
     static class UsableMethods
     {
         public static string zipPath;
+        private static string unzippedTestPath;
         public static bool IS_OK = false;
         public static string directoryPath;
+        public static string reportPath;
         private static string _courseName;
         private static string _groupName;
-
         public static void OpenTest(string courseName_copy, string groupName_copy)
         {
             _courseName = courseName_copy;
@@ -40,7 +41,8 @@ namespace Server_Knowledge_checking.Utilities
         {
             _courseName = "";
             _groupName = "";
-            Directory.Delete(directoryPath, true);
+            if(Directory.Exists(directoryPath))
+                Directory.Delete(directoryPath, true);
             directoryPath = "";
             zipPath = "";
         }
@@ -60,6 +62,7 @@ namespace Server_Knowledge_checking.Utilities
             string folderPath = g1.ToString();
             string fileName = g2.ToString();
             ZipDirectory(folderPath, fileName);
+            unzipTest();
             //C:\\Users\\maciek\\Documents\\Testy\\Elektronika\\Grupa_1\\test_2\\test.txt
         }
 
@@ -111,6 +114,11 @@ namespace Server_Knowledge_checking.Utilities
             //}
 
             //ZipFile.ExtractToDirectory(zipPath, "C:\\Desktop");
+        }
+
+        public static void unzipTest()
+        {
+            ZipFile.ExtractToDirectory(zipPath, directoryPath);
         }
 
     }
