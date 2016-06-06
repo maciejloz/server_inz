@@ -11,7 +11,7 @@ using System.Windows;
 
 namespace Server_Knowledge_checking.Utilities
 {
-    static class UsableMethods
+    public static class UsableMethods
     {
         public static string zipPath;
         private static string unzippedTestPath;
@@ -20,27 +20,49 @@ namespace Server_Knowledge_checking.Utilities
         public static string reportPath;
         private static string _courseName;
         private static string _groupName;
-        public static void OpenTest(string courseName_copy, string groupName_copy)
+        private static string _testName;
+        public static string folderPath;
+        public static string fileName;
+
+        public static int OpenTest(string courseName_copy, string groupName_copy, string testName_copy)
         {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "TXT Files (*.tst) |*.tst";
+            Nullable<bool> resultOfDialog = openFileDialog.ShowDialog();
+            int resultOfParsing;
             _courseName = courseName_copy;
             _groupName = groupName_copy;
-
-
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            //openFileDialog.Filter = "TXT Files (*.txt) |*.txt";
-            Nullable<bool> resultOfDialog = openFileDialog.ShowDialog();
+            _testName = testName_copy;
 
             if (resultOfDialog == true)
             {
                 string pathOfTest = openFileDialog.FileName;
                 SelectDirectoryPath(pathOfTest);
+                try
+                {
+                    resultOfParsing = TestParser.Instance.ParseTest(pathOfTest, folderPath);
+                }
+                catch(Exception ex)
+                {
+                    resultOfParsing = -1;
+                }
+
+                if(resultOfParsing == 0)
+                {
+                    ZipDirectory(folderPath, fileName);
+                    if(IS_OK == true)
+                        unzipTest();
+                }
+                return resultOfParsing;
             }
+            return -1;
         }
 
         public static void CancelTest()
         {
             _courseName = "";
             _groupName = "";
+            _testName = "";
             if(Directory.Exists(directoryPath))
                 Directory.Delete(directoryPath, true);
             directoryPath = "";
@@ -51,32 +73,23 @@ namespace Server_Knowledge_checking.Utilities
         {
             MainWindow mainWindow = new MainWindow();
             mainWindow.courseName.Visibility = System.Windows.Visibility.Hidden;
-
             string patternToParse = @"(.*\\)(.*)\.";
             Regex rExtract = new Regex(patternToParse, RegexOptions.IgnoreCase);
             Match mExtract = rExtract.Match(pathOfTest);
             Group g0 = mExtract.Groups[0];
             Group g1 = mExtract.Groups[1];
             Group g2 = mExtract.Groups[2];
-
-            string folderPath = g1.ToString();
-            string fileName = g2.ToString();
-            ZipDirectory(folderPath, fileName);
-            unzipTest();
-            //C:\\Users\\maciek\\Documents\\Testy\\Elektronika\\Grupa_1\\test_2\\test.txt
+            folderPath = g1.ToString();
+            fileName = g2.ToString();
         }
 
         private static void ZipDirectory(string folderPath, string fileName)
         {
-            zipPath = "C:\\Testy_Zipped\\" + _courseName + "\\" + _groupName + "\\" + fileName + ".zip";
-            directoryPath = "C:\\Testy_Zipped\\" + _courseName + "\\" + _groupName ;
-            //if (Directory.Exists(directoryPath) == false)
-                Directory.CreateDirectory(directoryPath);
-           // else
-            //    MessageBox.Show("Ścieżka skompresowanego folderu istnieje", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
-
+            zipPath = "C:\\Testy\\" + _courseName + "\\" + _groupName + "\\" + _testName + "\\" + fileName + ".zip";
+            directoryPath = "C:\\Testy\\" + _courseName + "\\" + _groupName + "\\" + "\\" + _testName;
             try
             {
+                Directory.CreateDirectory(directoryPath);
                 ZipFile.CreateFromDirectory(folderPath, zipPath, CompressionLevel.Optimal, false);
                 IS_OK = true;
             }
@@ -100,20 +113,11 @@ namespace Server_Knowledge_checking.Utilities
                 IS_OK = false;
                 System.Windows.MessageBox.Show("Nie posiadasz praw do katalogu", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            //catch (DirectoryNotFoundException ex)
-            //{
-            //    System.Windows.MessageBox.Show("Nie znaleziono katalogu", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
-            //}
-            //catch (EndOfStreamException ex)
-            //{
-            //    System.Windows.MessageBox.Show("nie znaleziono katalogu", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
-            //}
-            //catch (FileLoadException ex)
-            //{
-            //    System.Windows.MessageBox.Show("nie znaleziono katalogu", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
-            //}
-
-            //ZipFile.ExtractToDirectory(zipPath, "C:\\Desktop");
+            catch (NotSupportedException)
+            {
+                IS_OK = false;
+                System.Windows.MessageBox.Show("Prawdopodobnie podano błędna nazwę grupy", "Błąd nazwy", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public static void unzipTest()

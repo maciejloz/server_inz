@@ -14,12 +14,14 @@ namespace Server_Knowledge_checking.Utilities
         {
             mainWindow = mw;
         }
-        public void ChangeLabelsVisibilityWhenRun(string courseName, string groupName)
+        public void ChangeLabelsVisibilityWhenRun(string courseName, string groupName, string testName)
         {     
             mainWindow.courseName.Visibility = System.Windows.Visibility.Hidden;
             mainWindow.groupName.Visibility = System.Windows.Visibility.Hidden;
+            mainWindow.testName.Visibility = System.Windows.Visibility.Hidden;
             mainWindow.labelOfCourse.Visibility = System.Windows.Visibility.Hidden;
             mainWindow.labelOfGroupName.Visibility = System.Windows.Visibility.Hidden;
+            mainWindow.labelOfTestName.Visibility = System.Windows.Visibility.Hidden;
             mainWindow.getTestButton.Visibility = System.Windows.Visibility.Hidden;
             mainWindow.cancelTestButton.Visibility = System.Windows.Visibility.Visible;
             mainWindow.sendTestButton.Visibility = System.Windows.Visibility.Visible;
@@ -35,6 +37,8 @@ namespace Server_Knowledge_checking.Utilities
             mainWindow.courseName.Text = "";
             mainWindow.groupName.Visibility = System.Windows.Visibility.Visible;
             mainWindow.groupName.Text = "";
+            mainWindow.testName.Visibility = System.Windows.Visibility.Visible;
+            mainWindow.testName.Text = "";
             mainWindow.labelOfCourse.Visibility = System.Windows.Visibility.Visible;
             mainWindow.labelOfGroupName.Visibility = System.Windows.Visibility.Visible;
             mainWindow.getTestButton.Visibility = System.Windows.Visibility.Visible;

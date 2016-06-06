@@ -15,18 +15,12 @@ namespace Connection
     {
         public delegate void ClientCommunicationError(string message, ClientHandler client);
         public event ClientCommunicationError ClientCommunicationErrorEvent;
-
-        //public delegate void ClientCloseCommunication(Client client);
-        //public event ClientCloseCommunication ClientCloseCommunicationEvent;
-
-
         public TcpClient tcpClient = null;
         public int numberOfClient;
         public string nameOfClient = "";
         public static Dictionary<string, string> TypeOfServerMessage;
         public bool isReportReceive;
         public NetworkStream networkStream;
-
         private IPEndPoint _ipAddressOfClient;
         
         public ClientHandler(TcpClient tcpcl, int numbofclient, IPEndPoint ipendpoint)
@@ -47,8 +41,6 @@ namespace Connection
             if (tcpClient != null && tcpClient.Connected)
             {
                 tcpClient.Close();
-                //ClientCommunicationErrorEvent("Komunikacja została zamknięta", this);
-                //ClientCloseCommunicationEvent(this);
             }
         }
 
@@ -97,8 +89,8 @@ namespace Connection
                 {
                     do
                     {
-                        numberOfBytesRead = networkStream.Read(myReadBuffer, 0, myReadBuffer.Length );// myReadBuffer.Length);
-                        myCompleteMessage.AppendFormat("{0}", Encoding.UTF8.GetString(myReadBuffer, 0, numberOfBytesRead));// (Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead));
+                        numberOfBytesRead = networkStream.Read(myReadBuffer, 0, myReadBuffer.Length );
+                        myCompleteMessage.AppendFormat("{0}", Encoding.UTF8.GetString(myReadBuffer, 0, numberOfBytesRead));
                     } while (networkStream.DataAvailable);
 
                     nameOfClient = myCompleteMessage.ToString();
@@ -111,23 +103,22 @@ namespace Connection
                     }
                 SendResponseToClient(TypeOfServerMessage["Response To Logging"]);
             }
-            catch(ArgumentNullException ex)
+            catch(ArgumentNullException)
             {
                 ClientCommunicationErrorEvent("Bufor wysłany przez klienta jest pusty, nr klienta:" + numberOfClient.ToString(), this);
             }
-            catch(ArgumentOutOfRangeException ex)
+            catch(ArgumentOutOfRangeException)
             {
                 ClientCommunicationErrorEvent("Klient wysłał za duży bufor danych, nr klienta:" + numberOfClient.ToString(), this);
             }
-            catch(IOException ex)
+            catch(IOException)
             {
                 ClientCommunicationErrorEvent("Wybrane gniazdo po stronie klienta zostało wcześniej zakmnięte", this);
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 ClientCommunicationErrorEvent("Problem z odczytem danych z sieci", this);
             }
-
         } 
 
         private void SendResponseToClient(string messageToClient )
@@ -139,19 +130,19 @@ namespace Connection
                     networkStream.Write(sendBytes, 0, sendBytes.Length);
                     networkStream.Flush();
                 }
-                catch (ArgumentNullException ex)
+                catch (ArgumentNullException)
                 {
                     ClientCommunicationErrorEvent("Bufor wysłany do klienta jest pusty, nr klienta:" + numberOfClient.ToString(), this);
                 }
-                catch (ArgumentOutOfRangeException ex)
+                catch (ArgumentOutOfRangeException)
                 {
                     ClientCommunicationErrorEvent("Wysłano zbyt duży bufor danych do klienta, nr klienta:" + numberOfClient.ToString(), this);
                 }
-                catch (IOException ex)
+                catch (IOException)
                 {
                     ClientCommunicationErrorEvent("Wybrane gniazdo po stronie klienta zostało wcześniej zakmnięte", this);
                 }
-                catch (ObjectDisposedException ex)
+                catch (ObjectDisposedException)
                 {
                     ClientCommunicationErrorEvent("Problem z odczytem danych z sieci", this);
                 }
@@ -159,18 +150,13 @@ namespace Connection
 
         public Task SendTestToClient()
         {
-            //Byte[] sendBytes = null;
-            //sendBytes = Encoding.ASCII.GetBytes("Tu leci test");
-            //Server_Knowledge_checking.UsableMethods.zipPath;
             Task task = Task.Run(() =>
             {
                 using (var fileIO = File.OpenRead(Server_Knowledge_checking.Utilities.UsableMethods.zipPath))
                 {
-                    // Send Length (Int64)
                     try
                     {
                         networkStream.Write(BitConverter.GetBytes(fileIO.Length), 0, 8);
-                        //_networkStream.Write(sendBytes, 0, sendBytes.Length);
                         var buffer = new byte[1024 * 8];
                         int count;
 
@@ -179,19 +165,19 @@ namespace Connection
 
                         networkStream.Flush();
                     }
-                    catch (ArgumentNullException ex)
+                    catch (ArgumentNullException)
                     {
                         ClientCommunicationErrorEvent("Bufor wysłany do klienta jest pusty, nr klienta:" + numberOfClient.ToString(), this);
                     }
-                    catch (ArgumentOutOfRangeException ex)
+                    catch (ArgumentOutOfRangeException)
                     {
                         ClientCommunicationErrorEvent("Wysłano zbyt duży bufor danych do klienta, nr klienta:" + numberOfClient.ToString(), this);
                     }
-                    catch (IOException ex)
+                    catch (IOException)
                     {
                         ClientCommunicationErrorEvent("Wybrane gniazdo po stronie klienta zostało wcześniej zakmnięte", this);
                     }
-                    catch (ObjectDisposedException ex)
+                    catch (ObjectDisposedException)
                     {
                         ClientCommunicationErrorEvent("Problem z odczytem danych z sieci", this);
                     }
@@ -222,24 +208,23 @@ namespace Connection
                 SendResponseToClient("Report is Ok");
 
             }
-            catch (ArgumentNullException ex)
+            catch (ArgumentNullException)
             {
                 MessageBox.Show("Bufor wysłany przez serwer jest pusty");
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (ArgumentOutOfRangeException)
             {
                 MessageBox.Show("Serwer wysłał za duży bufor danych");
             }
-            catch (IOException ex)
+            catch (IOException)
             {
                 MessageBox.Show("Wybrane gniazdo zostało wcześniej zakmnięte lub wystąpił problem podczas zapisywania pliku z testem na dysku twardym");
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 MessageBox.Show("Problem z odczytem danych z sieci");
             }
             return true;
         }
-
     }
 }
