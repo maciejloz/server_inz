@@ -24,12 +24,12 @@ namespace Server_Knowledge_checking.Utilities
         public static string folderPath;
         public static string fileName;
 
-        public static int OpenTest(string courseName_copy, string groupName_copy, string testName_copy)
+        public static string OpenTest(string courseName_copy, string groupName_copy, string testName_copy)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "TXT Files (*.tst) |*.tst";
+            openFileDialog.Filter = "TST Files (*.tst) |*.tst";
             Nullable<bool> resultOfDialog = openFileDialog.ShowDialog();
-            int resultOfParsing;
+            string resultOfParsing;
             _courseName = courseName_copy;
             _groupName = groupName_copy;
             _testName = testName_copy;
@@ -42,12 +42,12 @@ namespace Server_Knowledge_checking.Utilities
                 {
                     resultOfParsing = TestParser.Instance.ParseTest(pathOfTest, folderPath);
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
-                    resultOfParsing = -1;
+                    resultOfParsing = "Wystąpił problem podczas odczytu plik";
                 }
 
-                if(resultOfParsing == 0)
+                if(resultOfParsing == "Ok")
                 {
                     ZipDirectory(folderPath, fileName);
                     if(IS_OK == true)
@@ -55,7 +55,8 @@ namespace Server_Knowledge_checking.Utilities
                 }
                 return resultOfParsing;
             }
-            return -1;
+            return "";
+            
         }
 
         public static void CancelTest()
@@ -93,22 +94,22 @@ namespace Server_Knowledge_checking.Utilities
                 ZipFile.CreateFromDirectory(folderPath, zipPath, CompressionLevel.Optimal, false);
                 IS_OK = true;
             }
-            catch(ArgumentException ex)
+            catch(ArgumentException)
             {
                 IS_OK = false;
                 System.Windows.MessageBox.Show("Podaj właściwy test", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            catch (PathTooLongException ex)
+            catch (PathTooLongException)
             {
                 IS_OK = false;
                 System.Windows.MessageBox.Show("Podana ścieżka testu jest za długa" , "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            catch (IOException ex)
+            catch (IOException)
             {
                 IS_OK = false;
                 System.Windows.MessageBox.Show("Plik .zip z podanej ścieżki już istnieje", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            catch (System.UnauthorizedAccessException ex)
+            catch (System.UnauthorizedAccessException)
             {
                 IS_OK = false;
                 System.Windows.MessageBox.Show("Nie posiadasz praw do katalogu", "Błąd ścieżki", MessageBoxButton.OK, MessageBoxImage.Error);

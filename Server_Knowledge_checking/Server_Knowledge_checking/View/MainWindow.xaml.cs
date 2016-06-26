@@ -44,13 +44,11 @@ namespace Server_Knowledge_checking
         {
             if (courseName.Text != "" && groupName.Text != "")
             {
-                int resultOfLoadingFile;
+                string resultOfLoadingFile;
                 resultOfLoadingFile = UsableMethods.OpenTest(courseName.Text, groupName.Text, testName.Text);
 
-                if (resultOfLoadingFile > 0)
-                    MessageBox.Show("Linia nr: " + (resultOfLoadingFile+1).ToString() + " zawiera błąd!");
-                else if (resultOfLoadingFile == -1)
-                        MessageBox.Show("Nie udało się załadować pliku");
+                if (resultOfLoadingFile != "Ok")
+                    MessageBox.Show(resultOfLoadingFile);
 
                 if (UsableMethods.IS_OK)
                     changeApp.ChangeLabelsVisibilityWhenRun(courseName.Text, groupName.Text, testName.Text);
@@ -102,8 +100,8 @@ namespace Server_Knowledge_checking
 
         private void disconnectWithClientsButton_Click(object sender, RoutedEventArgs e)
         {
-            changeApp.ChangeLabelsVisibilityWhenDisconnected();
             server.CloseConnection();
+            changeApp.ChangeLabelsVisibilityWhenDisconnected();
         }
 
         private void sendTestButton_Click(object sender, RoutedEventArgs e)

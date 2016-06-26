@@ -7,64 +7,66 @@ using System.IO;
 namespace ServerUnitTests
 {
     [TestClass]
-    public class TestReadFile
+    public class TestReadFileMethod
     {
         [TestMethod]
-        public void ReadFilePosiitive()
+        public void ReadFileWithPosiitiveResult()
         {
-            // Arrange
-            string pathToFile = "../../Utilities/ex_doc.txt";
-            // Act
-            List<string> actual = TestParser.Instance.ReadFile(pathToFile);
-            List<string> expected = new List<string>();
-            expected.Add("1");
-            expected.Add("2");
-            expected.Add("3");
-            // Assert
-            CollectionAssert.AreEqual(expected, actual);
+            // Given
+            string pathToFileWhichIsRead = "../../Utilities/ex_doc.txt";
+            // When
+            List<string> listWithActualResult = TestParser.Instance.ReadFile(pathToFileWhichIsRead);
+            List<string> listWithExpectedResult = new List<string>();
+            listWithExpectedResult.Add("1");
+            listWithExpectedResult.Add("2");
+            listWithExpectedResult.Add("3");
+            // Then
+            CollectionAssert.AreEqual(listWithExpectedResult, listWithActualResult);
         }
 
-        [ExpectedException(typeof(System.IO.DirectoryNotFoundException))]
-        [TestMethod]
-        public void ReadFileRaisedDirectoryNotFoundException()
-        {
-            // Arrange
-            string pathToFile = "C:/notexistedpath/ex_doc.txt";
-            // Act
-            List<string> actual = TestParser.Instance.ReadFile(pathToFile);
-        }
-    }
+[ExpectedException(typeof(System.IO.DirectoryNotFoundException))]
+[TestMethod]
+public void ReadFileWithRaisedDirectoryNotFoundException()
+{
+    // Given
+    string pathToFileWhichIsRead = "C:/notexistedpath/ex_doc.txt";
+    // When
+    List<string> listWithActualResult = TestParser.Instance.ReadFile(pathToFileWhichIsRead);
+    //Then
+    // Exception powinien zostać przechwycony
+}
+}
 
     [TestClass]
-    public class TestParserUnitTests
+    public class TestSpliAndCheckMethod
     {
         [TestMethod]
-        public void SplitAndCheckPosiitive()
+        public void SplitAndCheckPosiitiveResult()
         {
-            // Arrange
-            string filePath = "..\\..\\Utilities\\Pictures\\ex_image.png";
-            string content = "Pictures\\ex_image.png | Czym jest opór wewnętrzny baterii(Odpowiedz na podstawie rysunku pomocniczego) ?";
-            string folderPath = "..\\..\\Utilities\\";
+            // Given
+            string pathToFileWhichIsRead = "..\\..\\Utilities\\Pictures\\ex_image.png";
+            string contentOfSplittedElement = "Pictures\\ex_image.png | Czym jest opór wewnętrzny baterii(Odpowiedz na podstawie rysunku pomocniczego) ?";
+            string pathToFolderWhereFileShouldExist = "..\\..\\Utilities\\";
             Directory.CreateDirectory("..\\..\\Utilities\\Pictures");
-            File.Create(filePath).Dispose();
-            // Act
-            bool result = TestParser.Instance.SplitAndCheck(content, folderPath);
-            // Assert
-            Assert.AreEqual(result, true);
-            // CleanUp
+            File.Create(pathToFileWhichIsRead).Dispose();
+            // When
+            bool resultOfSplittingAndChecking = TestParser.Instance.SplitAndCheck(contentOfSplittedElement, pathToFolderWhereFileShouldExist);
+            // Then
+            Assert.AreEqual(resultOfSplittingAndChecking, true);
+            // Metoda czyszcząca
             Directory.Delete("..\\..\\Utilities\\Pictures", true);
         }
 
         [TestMethod]
         public void SplitAndCheckNegative()
         {
-            // Arrange
-            string content = "Pictures\\ex_image.png | Czym jest opór wewnętrzny baterii(Odpowiedz na podstawie rysunku pomocniczego) ?";
-            string folderPath = "..\\..\\Not_Existed\\";
-            // Act
-            bool result = TestParser.Instance.SplitAndCheck(content, folderPath);
-            // Assert
-            Assert.AreEqual(result, false);
+            // Given
+            string contentOfSplittedElement = "Pictures\\ex_image.png | Czym jest opór wewnętrzny baterii(Odpowiedz na podstawie rysunku pomocniczego) ?";
+            string pathToFolderWhereFileShouldNotExist = "..\\..\\Not_Existed\\";
+            // When
+            bool resultOfSplittingAndChecking = TestParser.Instance.SplitAndCheck(contentOfSplittedElement, pathToFolderWhereFileShouldNotExist);
+            // Then
+            Assert.AreEqual(resultOfSplittingAndChecking, false);
         }
 
 

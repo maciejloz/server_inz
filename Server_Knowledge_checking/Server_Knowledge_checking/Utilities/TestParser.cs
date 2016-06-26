@@ -10,10 +10,10 @@ namespace Server_Knowledge_checking.Utilities
     {
         const string patternForClassifyQuestion = @"Rodzaj:""(.)"".*";
         const string patternForOpenQuestion = @".*Tresc:""(.*?)""; .*""(\d{2,3})"".";
-        const string patternForCloseQuestion = @".*Tresc:""(.*?)""; Odpowiedz_A:""(.*?)""; Odpowiedz_B:""(.*?)""; Odpowiedz_C:""(.*?)""; Odpowiedz_D:""(.*?)""; Odpowiedz_E:""(.*?)""; Prawidlowa:""([ABCDE])""; Czas:""(\d{2,3})"".";
+        const string patternForCloseQuestion = @".*Tresc:""(.*?)""; Odpowiedz_A:""(.*?)""; Odpowiedz_B:""(.*?)""; Odpowiedz_C:""(.*?)""; Odpowiedz_D:""(.*?)""; Odpowiedz_E:""(.*?)""; Prawidlowa:""([ABCDE,]{1,})""; Czas:""(\d{2,3})"".";
         private static TestParser single_oInstance = null;
 
-        public static TestParser Instance
+        public static TestParser Instance    
         {
             get
             {
@@ -23,9 +23,12 @@ namespace Server_Knowledge_checking.Utilities
             }
         }
 
-        public int ParseTest(string pathToFile, string folderPath)
+        public string ParseTest(string pathToFile, string folderPath)
         {
             List<string> testFileLines = ReadFile(pathToFile);
+            string communicate = "Ok";
+            Dictionary<int, string> answers = new Dictionary<int, string>();
+            answers.Add(2, "A"); answers.Add(3, "B"); answers.Add(4, "C"); answers.Add(5, "D"); answers.Add(6, "E");
             Regex rExtractToClassify;
             Regex rExtractForOpen;
             Regex rExtractForClose;
@@ -53,48 +56,75 @@ namespace Server_Knowledge_checking.Utilities
                 {
                     rExtractForOpen = new Regex(patternForOpenQuestion, RegexOptions.IgnoreCase);
                     mExtractForOpen = rExtractForOpen.Match(line);
-                    g0 = mExtractForOpen.Groups[0];
-                    g1 = mExtractForOpen.Groups[1];
-                    g2 = mExtractForOpen.Groups[2];
-                    if (Int32.Parse(g2.ToString()) > 300 || Int32.Parse(g2.ToString()) < 10)
-                        return testFileLines.IndexOf(line);
-                    if (!SplitAndCheck(g1.ToString(), folderPath))
-                        return testFileLines.IndexOf(line);
+                    if (mExtractForOpen.Length > 0)
+                    {
+                        g0 = mExtractForOpen.Groups[0];
+                        g1 = mExtractForOpen.Groups[1];
+                        g2 = mExtractForOpen.Groups[2];
+
+                        if (Int32.Parse(g2.ToString()) > 300 || Int32.Parse(g2.ToString()) < 10)
+                        {
+                            return @"Popraw pole ""Czas:"" w linii nr: " + (testFileLines.IndexOf(line) + 1).ToString();
+
+                        }
+                        if (!SplitAndCheck(g1.ToString(), folderPath))
+                        {
+                            return @"Popraw pole ""Tresc:"" w linii nr: " + (testFileLines.IndexOf(line) + 1).ToString();
+                        }
+                    }
+                    else
+                    {
+                        return @"Popraw linię nr: " + (testFileLines.IndexOf(line) + 1).ToString();
+                    }
                 }
                 else if (g1.ToString() == "Z")
                 {
                     rExtractForClose = new Regex(patternForCloseQuestion, RegexOptions.IgnoreCase);
                     mExtractForClose = rExtractForClose.Match(line);
-                    g0 = mExtractForClose.Groups[0];
-                    g1 = mExtractForClose.Groups[1];
-                    g2 = mExtractForClose.Groups[2];
-                    g3 = mExtractForClose.Groups[3];
-                    g4 = mExtractForClose.Groups[4];
-                    g5 = mExtractForClose.Groups[5];
-                    g6 = mExtractForClose.Groups[6];
-                    g7 = mExtractForClose.Groups[7];
-                    g8 = mExtractForClose.Groups[8];
-
-                    if (g7.ToString() == "")
-                        return testFileLines.IndexOf(line);
-                    if (Int32.Parse(g8.ToString()) > 300 || Int32.Parse(g8.ToString()) < 10)
-                        return testFileLines.IndexOf(line);
-                    if (!SplitAndCheck(g1.ToString(), folderPath))
-                        return testFileLines.IndexOf(line);
-                    for (int index = 2; index <= 6; index++)
+                    if (mExtractForClose.Length > 0)
                     {
-                        if (mExtractForClose.Groups[index].ToString().Length > 9 && mExtractForClose.Groups[index].ToString().Substring(0, 9) == "Pictures\\")
-                            if (!checkIfFileExists(folderPath + mExtractForClose.Groups[index].ToString()))
-                                return testFileLines.IndexOf(line);
+                        g0 = mExtractForClose.Groups[0];
+                        g1 = mExtractForClose.Groups[1];
+                        g2 = mExtractForClose.Groups[2];
+                        g3 = mExtractForClose.Groups[3];
+                        g4 = mExtractForClose.Groups[4];
+                        g5 = mExtractForClose.Groups[5];
+                        g6 = mExtractForClose.Groups[6];
+                        g7 = mExtractForClose.Groups[7];
+                        g8 = mExtractForClose.Groups[8];
+
+                        if (Int32.Parse(g8.ToString()) > 300 || Int32.Parse(g8.ToString()) < 10)
+                        {
+                            return @"Popraw pole ""Czas:"" w linii nr: " + (testFileLines.IndexOf(line) + 1).ToString();
+                        }
+                        if (g7.ToString() == "" || g7.ToString()[g7.ToString().Length - 1] == ',')
+                        {
+                            return @"Popraw pole ""Prawidlowa:"" w linii nr: " + (testFileLines.IndexOf(line) + 1).ToString();
+                        }
+                        for (int index = 2; index <= 6; index++)
+                        {
+                            if (mExtractForClose.Groups[index].ToString().Length > 9 && mExtractForClose.Groups[index].ToString().Substring(0, 9) == "Pictures\\")
+                            {
+                                if (!checkIfFileExists(folderPath + mExtractForClose.Groups[index].ToString()))
+                                    return @"Popraw pole ""Odpowiedz_" + answers[index] + @": "" w linii nr: " + (testFileLines.IndexOf(line) + 1).ToString();
+                            }
+
+                        }
+                        if (!SplitAndCheck(g1.ToString(), folderPath))
+                            return @"Popraw pole ""Tresc:"" w linii nr: " + (testFileLines.IndexOf(line) + 1).ToString();
+                    }
+                    else
+                    {
+                        return @"Sprawdź linię nr: " + (testFileLines.IndexOf(line) + 1).ToString();
                     }
                 }
                 else
                 {
                     if(testFileLines.IndexOf(line) > 0)
-                        return testFileLines.IndexOf(line);
+                        return @"Popraw pole ""Rodzaj:"" w linii nr: " + (testFileLines.IndexOf(line) + 1).ToString();
                 }
             }
-            return 0;
+            return communicate;
         }
 
         public List<string> ReadFile(string pathToReadFile)

@@ -110,6 +110,7 @@ namespace Connection
                     client.tcpClient.Close();
 
             }
+            tcpListener.Stop();
             clientsList.Clear();
         }
 
